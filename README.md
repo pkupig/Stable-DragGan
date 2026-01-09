@@ -1,4 +1,4 @@
-# Stable=DragGan (Stability & Tracking Enhanced Version of Drag Your Gan)
+# Stable-DragGan (Stability & Tracking Enhanced Version of Drag Your Gan)
 
 ## Enhanced Features in this Fork
 
