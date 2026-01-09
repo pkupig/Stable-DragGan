@@ -1,0 +1,49 @@
+vq_constraints:
+  # Basic VQ settings
+  codebook_size: 1024
+  num_samples: 50000
+  clustering_method: "kmeans++"  # kmeans++, gmm, hierarchical, faiss
+  
+  # Adaptive VQ settings
+  adaptive_mode: true
+  min_lambda: 0.01
+  max_lambda: 0.5
+  max_distance: 50
+  
+  # Multi-scale VQ (for w+)
+  multi_scale: true
+  layer_weights: "exponential"  # exponential, linear, manual
+  
+  # Additional constraints
+  latent_l2_weight: 0.01
+  smoothing_window: 3
+  
+  # Adaptive codebook
+  use_adaptive_codebook: false
+  adaptive_lr: 0.01
+  adaptive_momentum: 0.9
+
+drag_settings:
+  # Point tracking
+  feature_idx: 5
+  r1: 3
+  r2: 12
+  
+  # Optimization
+  motion_lambda: 20
+  reg_weight: 0
+  
+  # Learning rates
+  base_lr: 0.001
+  lr_schedule: "constant"  # constant, decay, adaptive
+
+model_settings:
+  trunc_psi: 0.7
+  trunc_cutoff: null
+  noise_mode: "const"
+  latent_space: "w+"  # w, w+
+  
+ui_settings:
+  show_stats: true
+  stats_update_interval: 10
+  show_vq_visualization: false

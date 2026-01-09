@@ -1,0 +1,10 @@
+scipy>=1.11.1
+gradio>=3.35.2
+imageio-ffmpeg>=0.4.3
+hf_transfer
+pyopengl
+imgui
+glfw==2.6.1
+pillow>=9.4.0
+imageio>=2.9.0
+scikit-learn>=1.0.0
