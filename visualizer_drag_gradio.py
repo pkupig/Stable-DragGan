@@ -7,7 +7,7 @@ import json
 import gradio as gr
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageDraw
 
 import dnnlib
 from gradio_utils import (ImageMask, draw_mask_on_image, draw_points_on_image,
@@ -129,6 +129,26 @@ def init_images(global_state):
 
 def update_image_draw(image, points, mask, show_mask, global_state=None):
     image_draw = draw_points_on_image(image, points)
+    if global_state is not None and 'history_points' in global_state and len(global_state['history_points']) > 1:
+        draw = ImageDraw.Draw(image_draw)
+        history = global_state['history_points']
+        
+        # 遍历当前所有的控制点（可能有多个红点）
+        for point_key in points.keys():
+            line_coords = []
+            # 从历史记录中提取该点的坐标
+            for step_state in history:
+                if point_key in step_state:
+                    p_data = step_state[point_key]
+                    # 获取当前位置 (优先取 start_temp，如果没有则取 start)
+                    # 注意：Renderer内部坐标是 [y, x] (行, 列)，PIL画图需要 [x, y]
+                    curr_p = p_data.get("start_temp", p_data["start"])
+                    line_coords.append((curr_p[1], curr_p[0]))
+            
+            # 如果坐标点超过2个，就画线
+            if len(line_coords) > 1:
+                # fill='yellow' 表示黄色轨迹，width=2 表示线宽
+                draw.line(line_coords, fill='yellow', width=2)
     if show_mask and mask is not None and not (mask == 0).all() and not (
             mask == 1).all():
         image_draw = draw_mask_on_image(image_draw, mask)
@@ -222,6 +242,7 @@ with gr.Blocks() as app:
         'codebook_path': None,
         'codebook_status': "No codebook loaded",
         'stats_history': [],
+        "history_points": [],
     })
 
     # init image
@@ -583,9 +604,15 @@ with gr.Blocks() as app:
     )
     
     def on_change_patch_size(patch_size, global_state):
-        global_state['params']['patch_size'] = int(patch_size)
-        global_state['renderer'].patch_size = int(patch_size)
-        print(f'Patch size updated to: {patch_size}')
+        try:
+            patch_size_int = int(float(patch_size))
+        except (ValueError, TypeError):
+            print(f"Ignoring invalid patch size: {patch_size}")
+            return global_state
+        
+        global_state['params']['patch_size'] = patch_size_int
+        global_state['renderer'].patch_size = patch_size_int
+        print(f'Patch size updated to: {patch_size_int}')
         return global_state
     
     form_patch_size.change(
@@ -595,9 +622,15 @@ with gr.Blocks() as app:
     )
     
     def on_change_spatial_penalty(spatial_penalty, global_state):
-        global_state['params']['spatial_penalty'] = spatial_penalty
-        global_state['renderer'].spatial_penalty = spatial_penalty
-        print(f'Spatial penalty updated to: {spatial_penalty}')
+        try:
+            spatial_penalty_float = float(spatial_penalty)
+        except (ValueError, TypeError):
+            print(f"Ignoring invalid spatial penalty: {spatial_penalty}")
+            return global_state
+        
+        global_state['params']['spatial_penalty'] = spatial_penalty_float
+        global_state['renderer'].spatial_penalty = spatial_penalty_float
+        print(f'Spatial penalty updated to: {spatial_penalty_float}')
         return global_state
     
     form_spatial_penalty.change(
@@ -870,11 +903,15 @@ with gr.Blocks() as app:
             print(f'    VQ Mode: {global_state["params"]["vq_mode"]}')
             print(f'    PCA Projection: {global_state["params"]["grad_projection"]}')
             
+            global_state["history_points"] = []
             step_idx = 0
             while True:
                 if global_state["temporal_params"]["stop"]:
                     break
-
+                
+                import copy
+                current_points_snapshot = copy.deepcopy(global_state["points"])
+                global_state["history_points"].append(current_points_snapshot)
                 # Advanced drag with all constraints
                 renderer._render_drag_impl(
                     global_state['generator_params'],

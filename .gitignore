@@ -157,4 +157,4 @@ fabric.properties
 checkpoints
 ./*.npy
 ./*.json
-./*/png
+./*.png
