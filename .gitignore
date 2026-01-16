@@ -154,7 +154,11 @@ fabric.properties
 # Mac related
 .DS_Store
 
-checkpoints
-./*.npy
-./*.json
-./*.png
+checkpoints/
+/*.npy
+/*.json
+/*.png
+/*.csv
+/*.pth
+/*.log
+__pycache__/
