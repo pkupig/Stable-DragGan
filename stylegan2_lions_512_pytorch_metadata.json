@@ -1,0 +1,21 @@
+{
+  "network": "./checkpoints/stylegan2_lions_512_pytorch.pkl",
+  "model_dimensions": {
+    "z_dim": 512,
+    "c_dim": 0,
+    "img_resolution": 512,
+    "img_channels": 3,
+    "w_plus": true,
+    "num_ws": 16,
+    "w_dim": 512
+  },
+  "codebook_size": 1024,
+  "num_samples": 40000,
+  "use_pca": false,
+  "pca_components": null,
+  "explained_variance": 1.0,
+  "kmeans_inertia": 895465.0625,
+  "kmeans_iterations": 51,
+  "seed": 0,
+  "generated_date": "2026-01-15T12:34:29"
+}

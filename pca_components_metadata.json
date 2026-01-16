@@ -1,9 +1,9 @@
 {
-  "source_codebook": "ffhq_512_codebook.npy",
-  "n_components": 58,
-  "explained_variance": 0.9504488110542297,
+  "source_codebook": "stylegan2_lions_512_pytorch.npy",
+  "n_components": 138,
+  "explained_variance": 0.9499286413192749,
   "components_shape": [
-    58,
+    138,
     512
   ],
   "variance_threshold": 0.95

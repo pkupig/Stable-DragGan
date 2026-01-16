@@ -133,21 +133,15 @@ def update_image_draw(image, points, mask, show_mask, global_state=None):
         draw = ImageDraw.Draw(image_draw)
         history = global_state['history_points']
         
-        # 遍历当前所有的控制点（可能有多个红点）
         for point_key in points.keys():
             line_coords = []
-            # 从历史记录中提取该点的坐标
             for step_state in history:
                 if point_key in step_state:
                     p_data = step_state[point_key]
-                    # 获取当前位置 (优先取 start_temp，如果没有则取 start)
-                    # 注意：Renderer内部坐标是 [y, x] (行, 列)，PIL画图需要 [x, y]
                     curr_p = p_data.get("start_temp", p_data["start"])
                     line_coords.append((curr_p[1], curr_p[0]))
             
-            # 如果坐标点超过2个，就画线
             if len(line_coords) > 1:
-                # fill='yellow' 表示黄色轨迹，width=2 表示线宽
                 draw.line(line_coords, fill='yellow', width=2)
     if show_mask and mask is not None and not (mask == 0).all() and not (
             mask == 1).all():
@@ -225,11 +219,11 @@ with gr.Blocks() as app:
             "smoothing_window": 3,
             "use_adaptive": True,
             "max_vq_distance": 50,
-            "grad_projection": True,  # 新增：是否启用梯度投影
-            "pca_threshold": 0.95,   # 新增：PCA方差保留阈值
-            "tracking_mode": "standard",  # 新增：追踪模式 'standard' or 'robust'
-            "patch_size": 5,  # 新增：块匹配的patch大小
-            "spatial_penalty": 0.1,  # 新增：空间惩罚权重
+            "grad_projection": True,  
+            "pca_threshold": 0.95,   
+            "tracking_mode": "standard",  
+            "patch_size": 5,  
+            "spatial_penalty": 0.1,  
         },
         "device": device,
         "draw_interval": 1,

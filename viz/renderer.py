@@ -82,7 +82,6 @@ class AdaptiveCodebook:
         if len(indices) == 0:
             return
         
-        # 确保 indices 在正确设备上
         if indices.device != self.device:
             indices = indices.to(self.device)
         
@@ -187,16 +186,15 @@ class Renderer:
         self._cmaps         = dict()    # {name: torch.Tensor, ...}
         self._is_timing     = False
         
-        # Advanced Codebook相关
         self.codebook = None
         self.adaptive_codebook = None
         self.codebook_loaded = False
-        self.lambda_vq = 0.0  # VQ约束权重
+        self.lambda_vq = 0.0  # VQ-constraint weight
         self.vq_mode = 'static'  # 'static', 'adaptive', 'multi-scale', 'hybrid'
         self.min_lambda = 0.01
         self.max_lambda = 0.5
-        self.lambda_latent = 0.01  # 潜在空间L2约束权重
-        self.max_vq_distance = 50  # 自适应权重最大距离
+        self.lambda_latent = 0.01  # L2 latent regularization weight
+        self.max_vq_distance = 50  # self-adaptive VQ max distance
         
         # PCA Gradient Projection
         self.pca_components = None
@@ -410,7 +408,8 @@ class Renderer:
             return False
     
     def load_pca_components(self, pca_path=None):
-        """加载PCA主成分用于梯度投影"""
+        r"""
+        """
         try:
             import os
             if pca_path is None:
@@ -436,7 +435,7 @@ class Renderer:
                 self.pca_loaded = True
                 print(f'PCA components loaded from {pca_path}, shape: {pca_components.shape}, dtype: {pca_dtype}')
                 
-                # 确保主成分矩阵方向正确
+                # garantee max 256 components for efficiency
                 if self.pca_components.dim() == 2:
                     if self.pca_components.shape[0] < self.pca_components.shape[1]:
                         k = min(self.pca_components.shape[0], 256)  
@@ -652,7 +651,7 @@ class Renderer:
         if smoothing_window is not None:
             self.smoothing_window = smoothing_window
         if tracking_mode is not None:
-            self.tracking_mode = tracking_mode  # 设置追踪模式
+            self.tracking_mode = tracking_mode  # set tracking mode
         
         G = self.G
         ws = self.w
@@ -886,7 +885,7 @@ class Renderer:
                 
                 self.w_optim.step()
                 
-                # 动态锚点更新
+                # anchor update
                 with torch.no_grad():
                     current_vq_loss = res.stats.get('vq_loss', float('inf'))
                     
