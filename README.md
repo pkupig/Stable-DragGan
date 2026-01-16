@@ -80,8 +80,7 @@ Compute PCA components based on the generated codebook to enable Gradient Projec
 ```bash
 python generate_pca.py \
     --codebook checkpoints/codebook_lions.npy \
-    --output checkpoints/pca_lions.npy \
-    --variance-threshold 0.95
+    --output pca_components.npy \
 ```
 
 4. **Run the Enhanced DragGAN GUI**
